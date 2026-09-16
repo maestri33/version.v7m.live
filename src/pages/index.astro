@@ -1,0 +1,228 @@
+---
+import '../styles/global.css';
+import { getAllVersionEntries, getLatestVersions } from '../lib/versions';
+import { render } from 'astro:content';
+
+export const prerender = false;
+
+const latestData = await getLatestVersions();
+const entries = await getAllVersionEntries();
+
+// Pre-render content for each entry
+const renderedEntries = await Promise.all(
+  entries.map(async (entry) => {
+    const { Content } = await render(entry);
+    return {
+      entry,
+      Content,
+    };
+  })
+);
+
+const appList = Object.entries(latestData.apps);
+
+const typeColors: Record<string, string> = {
+  patch: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
+  minor: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
+  major: 'bg-purple-500/10 text-purple-400 border-purple-500/20',
+};
+---
+
+<!doctype html>
+<html lang="pt-BR" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Central de Versionamento | Supletivo Brasil</title>
+    <meta
+      name="description"
+      content="Fonte única da verdade sobre versões e changelogs do ecossistema Supletivo Brasil."
+    />
+  </head>
+  <body class="min-h-screen bg-slate-950 text-slate-100 antialiased selection:bg-cyan-500 selection:text-white">
+    <!-- Top Navigation / Header -->
+    <header class="border-b border-slate-800/80 bg-slate-900/60 backdrop-blur-md sticky top-0 z-30">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="h-9 w-9 rounded-lg bg-gradient-to-tr from-cyan-600 to-blue-500 flex items-center justify-center font-bold text-white shadow-lg shadow-cyan-500/20">
+            V
+          </div>
+          <div>
+            <h1 class="text-base font-semibold leading-none tracking-tight">version.v7m.live</h1>
+            <p class="text-xs text-slate-400 mt-1">Supletivo Brasil — Central de Versionamento</p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <a
+            href="/api/version"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="text-xs font-mono px-3 py-1.5 rounded-md bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition flex items-center gap-1.5"
+          >
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span>GET /api/version</span>
+          </a>
+        </div>
+      </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-12">
+      <!-- Intro Hero Banner -->
+      <section class="rounded-2xl bg-gradient-to-b from-slate-900 via-slate-900/90 to-slate-950 border border-slate-800 p-6 sm:p-8 relative overflow-hidden shadow-xl">
+        <div class="absolute -top-24 -right-24 w-72 h-72 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="relative z-10 max-w-3xl">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium bg-cyan-950/70 text-cyan-300 border border-cyan-800/60 mb-4">
+            <span>Micro-serviço de Borda</span>
+            <span>•</span>
+            <span>Cloudflare Edge</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl font-bold tracking-tight text-white">
+            Fonte Única da Verdade para Versões e Changelogs
+          </h2>
+          <p class="mt-3 text-slate-400 text-sm sm:text-base leading-relaxed">
+            Todas as entregas, incrementos de versão e histórico técnico do ecossistema
+            <span class="text-slate-200 font-medium">Supletivo Brasil</span> consolidados e auditados.
+          </p>
+          <div class="mt-6 flex flex-wrap gap-4 text-xs text-slate-400 border-t border-slate-800/80 pt-4">
+            <div>
+              <span class="text-slate-500">Aplicações Monitoradas:</span>
+              <strong class="text-slate-200 ml-1">{appList.length}</strong>
+            </div>
+            <div>
+              <span class="text-slate-500">Última Atualização:</span>
+              <strong class="text-slate-200 ml-1">
+                {new Date(latestData.updated_at).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}
+              </strong>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Apps Grid -->
+      <section class="space-y-4">
+        <div class="flex items-center justify-between">
+          <h3 class="text-lg font-semibold tracking-tight text-white flex items-center gap-2">
+            <span>Aplicações Ativas</span>
+            <span class="text-xs font-normal text-slate-400 px-2 py-0.5 rounded-full bg-slate-800 border border-slate-700">
+              {appList.length}
+            </span>
+          </h3>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {appList.map(([app, currentVer]) => {
+            const appEntries = entries.filter((e) => e.data.app === app);
+            const latestEntry = appEntries[0];
+            return (
+              <div class="rounded-xl bg-slate-900/80 border border-slate-800 hover:border-slate-700 p-5 transition flex flex-col justify-between group">
+                <div>
+                  <div class="flex items-start justify-between gap-2">
+                    <div>
+                      <h4 class="font-mono text-base font-medium text-slate-100 group-hover:text-cyan-400 transition">
+                        {app}
+                      </h4>
+                      <p class="text-xs text-slate-400 mt-0.5">
+                        {appEntries.length} {appEntries.length === 1 ? 'versão registrada' : 'versões registradas'}
+                      </p>
+                    </div>
+                    <span class="inline-flex items-center font-mono text-xs font-semibold px-2.5 py-1 rounded-md bg-cyan-950 text-cyan-300 border border-cyan-800">
+                      v{currentVer}
+                    </span>
+                  </div>
+
+                  {latestEntry && (
+                    <p class="text-sm text-slate-300 mt-4 line-clamp-2">
+                      {latestEntry.data.summary}
+                    </p>
+                  )}
+                </div>
+
+                <div class="mt-6 pt-4 border-t border-slate-800/60 flex items-center justify-between text-xs text-slate-400">
+                  <span>Atualizado em: <strong class="text-slate-300 font-mono">{latestEntry?.data.date ?? 'N/A'}</strong></span>
+                  <a
+                    href={`/api/version/${app}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="font-mono text-cyan-400 hover:text-cyan-300 hover:underline"
+                  >
+                    /api/version/{app} →
+                  </a>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
+      <!-- Chronological Changelog Feed -->
+      <section class="space-y-6">
+        <div>
+          <h3 class="text-lg font-semibold tracking-tight text-white">
+            Histórico Cronológico de Entregas
+          </h3>
+          <p class="text-xs text-slate-400 mt-1">
+            Registro auditado de versões alimentado via Content Collections (<code class="text-slate-300">src/content/versions/*.md</code>).
+          </p>
+        </div>
+
+        <div class="space-y-4">
+          {renderedEntries.map(({ entry, Content }) => {
+            const data = entry.data;
+            const badgeStyle = typeColors[data.type] || typeColors.patch;
+
+            return (
+              <article class="rounded-xl bg-slate-900/60 border border-slate-800 hover:border-slate-700/80 p-5 sm:p-6 transition space-y-4">
+                <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/60 pb-3">
+                  <div class="flex flex-wrap items-center gap-2">
+                    <span class="font-mono font-medium text-slate-200 text-sm">
+                      {data.app}
+                    </span>
+                    <span class="font-mono text-xs font-bold px-2 py-0.5 rounded bg-slate-800 text-cyan-300 border border-slate-700">
+                      v{data.version}
+                    </span>
+                    <span class={`text-[11px] uppercase tracking-wider font-semibold px-2 py-0.5 rounded border ${badgeStyle}`}>
+                      {data.type}
+                    </span>
+                  </div>
+
+                  <div class="flex items-center gap-3 text-xs text-slate-400 font-mono">
+                    <span>{data.date}</span>
+                    <span>•</span>
+                    <span title="Commit Hash" class="bg-slate-800 px-2 py-0.5 rounded text-slate-300">
+                      #{data.commit}
+                    </span>
+                  </div>
+                </div>
+
+                <div>
+                  <h4 class="text-base font-medium text-slate-100">
+                    {data.summary}
+                  </h4>
+                  <div class="mt-1 text-xs text-slate-400">
+                    Autorizado por: <strong class="text-slate-300">{data.authorized_by}</strong>
+                  </div>
+                </div>
+
+                <!-- Markdown Content rendered -->
+                <div class="prose prose-invert prose-sm max-w-none text-slate-300 text-sm pt-2 border-t border-slate-800/40">
+                  <Content />
+                </div>
+              </article>
+            );
+          })}
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="mt-20 border-t border-slate-800/80 py-8 text-center text-xs text-slate-500">
+      <div class="max-w-6xl mx-auto px-4 space-y-2">
+        <p>
+          <strong class="text-slate-400">Supletivo Brasil</strong> • Central de Versionamento (<code class="text-slate-400">version.v7m.live</code>)
+        </p>
+        <p>Desenvolvido com Astro, TypeScript e Cloudflare Edge.</p>
+      </div>
+    </footer>
+  </body>
+</html>
