@@ -41,15 +41,15 @@ const typeColors: Record<string, string> = {
   </head>
   <body class="min-h-screen bg-slate-950 text-slate-100 antialiased selection:bg-cyan-500 selection:text-white">
     <!-- Top Navigation / Header -->
-    <header class="border-b border-slate-800/80 bg-slate-900/60 backdrop-blur-md sticky top-0 z-30">
+    <header class="border-b border-slate-800/80 bg-slate-950/90 backdrop-blur-md sticky top-0 z-50">
       <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         <div class="flex items-center gap-3">
           <div class="h-9 w-9 rounded-lg bg-gradient-to-tr from-cyan-600 to-blue-500 flex items-center justify-center font-bold text-white shadow-lg shadow-cyan-500/20">
             V
           </div>
           <div>
-            <h1 class="text-base font-semibold leading-none tracking-tight">version.v7m.live</h1>
-            <p class="text-xs text-slate-400 mt-1">Supletivo Brasil — Central de Versionamento</p>
+            <div class="text-sm font-semibold leading-none tracking-tight text-white">version.v7m.live</div>
+            <div class="text-xs text-slate-400 mt-1">Supletivo Brasil — Central de Versionamento</div>
           </div>
         </div>
 
@@ -58,7 +58,7 @@ const typeColors: Record<string, string> = {
             href="/api/version"
             target="_blank"
             rel="noopener noreferrer"
-            class="text-xs font-mono px-3 py-1.5 rounded-md bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition flex items-center gap-1.5"
+            class="text-xs font-mono px-3 py-1.5 rounded-md bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-700/80 transition flex items-center gap-1.5"
           >
             <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
             <span>GET /api/version</span>
@@ -67,7 +67,7 @@ const typeColors: Record<string, string> = {
       </div>
     </header>
 
-    <main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-12">
+    <main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10">
       <!-- Intro Hero Banner -->
       <section class="rounded-2xl bg-gradient-to-b from-slate-900 via-slate-900/90 to-slate-950 border border-slate-800 p-6 sm:p-8 relative overflow-hidden shadow-xl">
         <div class="absolute -top-24 -right-24 w-72 h-72 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
