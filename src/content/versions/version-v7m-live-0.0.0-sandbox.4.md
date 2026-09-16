@@ -4,11 +4,11 @@ version: "0.0.0-sandbox.4"
 date: "2026-09-16"
 authorized_by: "Víctor"
 commit: "c3d4e5f"
-summary: "Applied strict astro-bestpractices cleanups and removed redundant SSR exports"
+summary: "Aplicação de boas práticas do Astro e remoção de redundâncias de SSR"
 type: "patch"
 ---
 
-### Technical Changes
-- Removed redundant `export const prerender = false;` across all on-demand routes in `output: 'server'` mode.
-- Centralized platform history serialization into `getPlatformHistory` in `src/lib/versions.ts`.
-- Removed narrative and structural comment clutter adhering to Astro deletion-test standards.
+### Mudanças Técnicas
+- Remoção do export redundante `export const prerender = false;` em conformidade com o modo `output: 'server'`.
+- Centralização da serialização do histórico da plataforma na função `getPlatformHistory`.
+- Limpeza de comentários narrativos aderindo ao teste de deleção do Astro.

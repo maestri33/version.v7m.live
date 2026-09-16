@@ -3,13 +3,13 @@ module: "version.v7m.live"
 version: "0.0.0-sandbox.5"
 date: "2026-09-16"
 authorized_by: "Víctor"
-commit: "d4e5f6a"
-summary: "Configured Cloudflare custom domain routing, disabled unused session runtime, and created GitHub Actions CI/CD"
+commit: "489fa4b"
+summary: "Configuração de rota de domínio customizado na Cloudflare, otimização de runtime e CI/CD"
 type: "patch"
 ---
 
-### Technical Changes
-- Configured native custom domain route `version.v7m.live` in `wrangler.jsonc`.
-- Disabled unused SSR session runtime (`session: false`) in `astro.config.mjs`, trimming worker bundle footprint and eliminating default KV namespace provisioning.
-- Added automated GitHub Actions deployment pipeline in `.github/workflows/deploy.yml` with type checking, build validation, and Cloudflare deployment.
-- Formalized ecosystem domain directive in `AGENTS.md` reserving `*.v7m.live` for developer tools/infrastructure and `*.supletivo.net.br` for business portals.
+### Mudanças Técnicas
+- Configuração de rota com domínio customizado `version.v7m.live` no `wrangler.jsonc`.
+- Desativação do runtime de sessão desnecessário (`session: false`) no `astro.config.mjs`, reduzindo o bundle e eliminando namespaces KV.
+- Criação da pipeline de deploy automatizado via GitHub Actions em `.github/workflows/deploy.yml`.
+- Formalização da diretriz de domínios `*.v7m.live` no `AGENTS.md`.

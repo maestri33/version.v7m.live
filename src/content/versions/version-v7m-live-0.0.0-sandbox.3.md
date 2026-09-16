@@ -4,11 +4,11 @@ version: "0.0.0-sandbox.3"
 date: "2026-09-16"
 authorized_by: "Víctor"
 commit: "b9c0d1e"
-summary: "Adoption of unified platform version architecture and central oracle API"
+summary: "Adoção da arquitetura de versão única da plataforma e API do oráculo central"
 type: "patch"
 ---
 
-### Technical Changes
-- Transitioned versioning model to Single Platform Version (Supletivo Brasil).
-- Added global platform endpoint at /api/version with backwards-compatible module map.
-- Upgraded dashboard with prominent platform version badge and release train timeline.
+### Mudanças Técnicas
+- Transição do modelo para Versão Única da Plataforma (Release Train global).
+- Criação do endpoint global `/api/version` com mapa de compatibilidade de módulos.
+- Atualização do painel visual com destaque de versão e linha do tempo histórica.

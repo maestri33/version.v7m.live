@@ -18,10 +18,10 @@ const renderedEntries = await Promise.all(
 
 const moduleList = Object.entries(platform.apps);
 
-const typeColors: Record<string, string> = {
-  patch: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
-  minor: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
-  major: 'bg-purple-500/10 text-purple-400 border-purple-500/20',
+const typeColors: Record<string, { bg: string; text: string; border: string }> = {
+  patch: { bg: 'bg-[var(--blue-deep)]/60', text: 'text-[var(--muted-on-dark)]', border: 'border-[var(--blue)]/50' },
+  minor: { bg: 'bg-[var(--green-deep)]/60', text: 'text-emerald-300', border: 'border-[var(--green)]/50' },
+  major: { bg: 'bg-[var(--yellow)]/15', text: 'text-[var(--yellow)]', border: 'border-[var(--yellow)]/40' },
 };
 ---
 
@@ -36,16 +36,16 @@ const typeColors: Record<string, string> = {
       content="Oráculo central e fonte única da verdade sobre a versão da Plataforma Supletivo Brasil."
     />
   </head>
-  <body class="min-h-screen bg-slate-950 text-slate-100 antialiased selection:bg-cyan-500 selection:text-white">
-    <header class="border-b border-slate-800/80 bg-slate-950/90 backdrop-blur-md sticky top-0 z-50">
+  <body class="min-h-screen bg-[var(--ink)] text-[var(--paper)] font-sans antialiased">
+    <header class="border-b border-white/10 bg-[var(--ink)]/85 backdrop-blur-md sticky top-0 z-50">
       <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         <div class="flex items-center gap-3">
-          <div class="h-9 w-9 rounded-lg bg-gradient-to-tr from-cyan-600 to-blue-500 flex items-center justify-center font-bold text-white shadow-lg shadow-cyan-500/20">
+          <div class="h-9 w-9 rounded-lg bg-[var(--blue)] border border-white/15 flex items-center justify-center font-display text-base text-[var(--yellow)] shadow-lg shadow-black/40">
             V
           </div>
           <div>
-            <div class="text-sm font-semibold leading-none tracking-tight text-white">version.v7m.live</div>
-            <div class="text-xs text-slate-400 mt-1">Supletivo Brasil — Oráculo de Versão</div>
+            <div class="text-sm font-bold tracking-tight text-[var(--paper)]">version.v7m.live</div>
+            <div class="text-xs text-[var(--muted-on-dark)]">Supletivo Brasil — Oráculo da Plataforma</div>
           </div>
         </div>
 
@@ -54,7 +54,7 @@ const typeColors: Record<string, string> = {
             href="/api/version/history"
             target="_blank"
             rel="noopener noreferrer"
-            class="text-xs font-mono px-3 py-1.5 rounded-md bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-slate-200 border border-slate-800 transition"
+            class="text-xs font-mono px-3 py-1.5 rounded-lg bg-[var(--ink-soft)] hover:bg-white/10 text-[var(--muted-on-dark)] hover:text-[var(--paper)] border border-white/10 transition"
           >
             /api/version/history
           </a>
@@ -62,57 +62,59 @@ const typeColors: Record<string, string> = {
             href="/api/version"
             target="_blank"
             rel="noopener noreferrer"
-            class="text-xs font-mono px-3 py-1.5 rounded-md bg-cyan-950/80 hover:bg-cyan-900/80 text-cyan-300 border border-cyan-800/80 transition flex items-center gap-1.5 shadow-sm"
+            class="text-xs font-mono font-bold px-3 py-1.5 rounded-lg bg-[var(--yellow)] hover:bg-[var(--yellow-soft)] text-[var(--ink)] border border-[var(--yellow-soft)] transition flex items-center gap-1.5 shadow-sm"
           >
-            <span class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
+            <span class="w-2 h-2 rounded-full bg-[var(--green)] animate-pulse"></span>
             <span>GET /api/version</span>
           </a>
         </div>
       </div>
     </header>
 
-    <main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10">
-      <section class="rounded-2xl bg-gradient-to-b from-slate-900 via-slate-900/90 to-slate-950 border border-slate-800 p-6 sm:p-8 relative overflow-hidden shadow-2xl">
-        <div class="absolute -top-24 -right-24 w-80 h-80 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
+    <main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-12">
+      <section class="rounded-[var(--radius-lg)] glass-panel shadow-zero-g p-6 sm:p-10 relative overflow-hidden">
+        <div class="absolute -top-28 -right-28 w-96 h-96 bg-[var(--blue)]/30 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="absolute -bottom-24 -left-24 w-80 h-80 bg-[var(--green)]/20 rounded-full blur-3xl pointer-events-none"></div>
+
         <div class="relative z-10 max-w-3xl">
           <div class="flex flex-wrap items-center gap-2 mb-4">
-            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-cyan-950/70 text-cyan-300 border border-cyan-800/60">
+            <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium bg-[var(--green-deep)]/80 text-emerald-200 border border-[var(--green)]/50">
               <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
-              <span>Versão Única da Plataforma</span>
+              <span>Oráculo Ativo • Versão Única</span>
             </span>
-            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-slate-800/80 text-slate-300 border border-slate-700">
-              Cloudflare Edge SSR
+            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-[var(--ink-soft)] text-[var(--muted-on-dark)] border border-white/10">
+              Cloudflare Workers SSR
             </span>
           </div>
 
           <div class="flex flex-wrap items-baseline gap-3">
-            <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-white font-mono">
+            <h1 class="text-4xl sm:text-5xl lg:text-6xl font-display tracking-tight text-[var(--paper)]">
               v{platform.version}
-            </h2>
-            <span class="text-slate-400 text-base sm:text-lg font-normal">
+            </h1>
+            <span class="text-[var(--muted-on-dark)] text-lg sm:text-xl font-medium">
               — Plataforma Supletivo Brasil
             </span>
           </div>
 
-          <p class="mt-3 text-slate-400 text-sm sm:text-base leading-relaxed">
-            Oráculo central e fonte única da verdade para a versão e o histórico de entregas do ecossistema.
-            Qualquer alteração homologada em qualquer módulo incrementa a versão global da plataforma.
+          <p class="mt-4 text-[var(--muted-on-dark)] text-sm sm:text-base leading-relaxed">
+            Fonte única da verdade e oráculo central para o versionamento do ecossistema Supletivo Brasil.
+            Toda entrega homologada em qualquer módulo do ecossistema consolida o Release Train e incrementa a versão global da plataforma.
           </p>
 
-          <div class="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-4 border-t border-slate-800/80 pt-4 text-xs">
-            <div class="bg-slate-950/40 rounded-lg p-3 border border-slate-800/50">
-              <span class="text-slate-500 block">Último Módulo Atualizado:</span>
-              <strong class="text-cyan-300 font-mono text-sm block mt-0.5">{platform.last_module_updated}</strong>
+          <div class="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-4 border-t border-white/10 pt-5 text-xs">
+            <div class="bg-[var(--ink-soft)]/90 rounded-[var(--radius)] p-3.5 border border-white/10">
+              <span class="text-[var(--muted-on-dark)] block text-xs">Último Módulo Atualizado:</span>
+              <strong class="text-[var(--yellow)] font-mono text-sm block mt-1">{platform.last_module_updated}</strong>
             </div>
-            <div class="bg-slate-950/40 rounded-lg p-3 border border-slate-800/50">
-              <span class="text-slate-500 block">Última Entrega:</span>
-              <strong class="text-slate-200 block mt-0.5 font-mono">
+            <div class="bg-[var(--ink-soft)]/90 rounded-[var(--radius)] p-3.5 border border-white/10">
+              <span class="text-[var(--muted-on-dark)] block text-xs">Data da Entrega:</span>
+              <strong class="text-[var(--paper)] block mt-1 font-mono">
                 {new Date(platform.updated_at).toLocaleDateString('pt-BR', { timeZone: 'UTC' })} (#{platform.commit})
               </strong>
             </div>
-            <div class="bg-slate-950/40 rounded-lg p-3 border border-slate-800/50">
-              <span class="text-slate-500 block">Autorizado por:</span>
-              <strong class="text-slate-200 block mt-0.5">{platform.authorized_by}</strong>
+            <div class="bg-[var(--ink-soft)]/90 rounded-[var(--radius)] p-3.5 border border-white/10">
+              <span class="text-[var(--muted-on-dark)] block text-xs">Autorizado por:</span>
+              <strong class="text-[var(--paper)] block mt-1">{platform.authorized_by}</strong>
             </div>
           </div>
         </div>
@@ -120,14 +122,14 @@ const typeColors: Record<string, string> = {
 
       <section class="space-y-4">
         <div class="flex items-center justify-between">
-          <h3 class="text-lg font-semibold tracking-tight text-white flex items-center gap-2">
+          <h2 class="text-xl sm:text-2xl font-display tracking-tight text-[var(--paper)] flex items-center gap-2.5">
             <span>Módulos do Ecossistema</span>
-            <span class="text-xs font-normal text-slate-400 px-2 py-0.5 rounded-full bg-slate-800 border border-slate-700">
+            <span class="text-xs font-sans font-semibold text-[var(--muted-on-dark)] px-2.5 py-0.5 rounded-full bg-[var(--ink-soft)] border border-white/10">
               {moduleList.length}
             </span>
-          </h3>
-          <span class="text-xs text-slate-400">
-            Versão da última alteração de cada módulo
+          </h2>
+          <span class="text-xs text-[var(--muted-on-dark)]">
+            Versão da última alteração de cada aplicação
           </span>
         </div>
 
@@ -136,33 +138,34 @@ const typeColors: Record<string, string> = {
             const modEntries = entries.filter((e) => e.data.module === modName);
             const latestEntry = modEntries[0];
             return (
-              <div class="rounded-xl bg-slate-900/80 border border-slate-800 hover:border-slate-700 p-5 transition flex flex-col justify-between group">
+              <div class="rounded-[var(--radius)] glass-panel hover:border-white/20 p-5 transition flex flex-col justify-between group shadow-lg">
                 <div>
                   <div class="flex items-start justify-between gap-2">
-                    <h4 class="font-mono text-sm font-medium text-slate-100 group-hover:text-cyan-400 transition break-all">
+                    <h3 class="font-mono text-sm font-bold text-[var(--paper)] group-hover:text-[var(--yellow)] transition break-all">
                       {modName}
-                    </h4>
-                    <span class="font-mono text-xs font-semibold px-2 py-0.5 rounded bg-slate-800 text-cyan-300 border border-slate-700 shrink-0">
+                    </h3>
+                    <span class="font-mono text-xs font-bold px-2 py-0.5 rounded bg-[var(--blue-deep)] text-[var(--yellow)] border border-[var(--blue)] shrink-0">
                       v{latestVer}
                     </span>
                   </div>
 
                   {latestEntry && (
-                    <p class="text-xs text-slate-400 mt-3 line-clamp-2">
+                    <p class="text-xs text-[var(--muted-on-dark)] mt-3 line-clamp-2">
                       {latestEntry.data.summary}
                     </p>
                   )}
                 </div>
 
-                <div class="mt-4 pt-3 border-t border-slate-800/60 flex items-center justify-between text-xs">
-                  <span class="text-slate-500">Última ação: <strong class="text-slate-300 font-mono">{latestEntry?.data.date ?? 'N/A'}</strong></span>
+                <div class="mt-4 pt-3 border-t border-white/10 flex items-center justify-between text-xs">
+                  <span class="text-[var(--muted-on-dark)]">Última ação: <strong class="text-[var(--paper)] font-mono">{latestEntry?.data.date ?? 'N/A'}</strong></span>
                   <a
                     href={`/api/version/${modName}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    class="font-mono text-cyan-400 hover:text-cyan-300 hover:underline"
+                    class="font-mono text-[var(--yellow)] hover:underline flex items-center gap-1"
                   >
-                    histórico →
+                    <span>histórico</span>
+                    <span>→</span>
                   </a>
                 </div>
               </div>
@@ -173,53 +176,53 @@ const typeColors: Record<string, string> = {
 
       <section class="space-y-6">
         <div>
-          <h3 class="text-lg font-semibold tracking-tight text-white">
+          <h2 class="text-xl sm:text-2xl font-display tracking-tight text-[var(--paper)]">
             Linha do Tempo da Plataforma (Release Train)
-          </h3>
-          <p class="text-xs text-slate-400 mt-1">
-            Cada incremento de versão consolida o estado global da Plataforma Supletivo Brasil.
+          </h2>
+          <p class="text-xs text-[var(--muted-on-dark)] mt-1">
+            Cada incremento reflete a consolidação global do ecossistema Supletivo Brasil.
           </p>
         </div>
 
         <div class="space-y-4">
           {renderedEntries.map(({ entry, Content }) => {
             const data = entry.data;
-            const badgeStyle = typeColors[data.type] || typeColors.patch;
+            const style = typeColors[data.type] || typeColors.patch;
 
             return (
-              <article class="rounded-xl bg-slate-900/60 border border-slate-800 hover:border-slate-700/80 p-5 sm:p-6 transition space-y-4">
-                <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/60 pb-3">
+              <article class="rounded-[var(--radius)] glass-panel p-5 sm:p-6 transition space-y-4 shadow-lg hover:border-white/25">
+                <div class="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 pb-3">
                   <div class="flex flex-wrap items-center gap-2">
-                    <span class="font-mono text-sm font-bold px-2.5 py-1 rounded-md bg-cyan-950 text-cyan-300 border border-cyan-800">
+                    <span class="font-display text-sm tracking-wide px-3 py-1 rounded-md bg-[var(--blue-deep)] text-[var(--yellow)] border border-[var(--blue)]">
                       v{data.version}
                     </span>
-                    <span class="font-mono text-xs px-2 py-0.5 rounded bg-slate-800 text-slate-200 border border-slate-700">
+                    <span class="font-mono text-xs px-2 py-0.5 rounded bg-[var(--ink-soft)] text-[var(--paper)] border border-white/10">
                       {data.module}
                     </span>
-                    <span class={`text-[10px] uppercase tracking-wider font-semibold px-2 py-0.5 rounded border ${badgeStyle}`}>
+                    <span class={`text-[10px] uppercase tracking-wider font-bold px-2 py-0.5 rounded border ${style.bg} ${style.text} ${style.border}`}>
                       {data.type}
                     </span>
                   </div>
 
-                  <div class="flex items-center gap-3 text-xs text-slate-400 font-mono">
+                  <div class="flex items-center gap-3 text-xs text-[var(--muted-on-dark)] font-mono">
                     <span>{data.date}</span>
                     <span>•</span>
-                    <span title="Commit Hash" class="bg-slate-800 px-2 py-0.5 rounded text-slate-300">
+                    <span title="Commit Hash" class="bg-[var(--ink-soft)] px-2 py-0.5 rounded text-[var(--paper)] border border-white/10">
                       #{data.commit}
                     </span>
                   </div>
                 </div>
 
                 <div>
-                  <h4 class="text-base font-medium text-slate-100">
+                  <h3 class="text-base font-semibold text-[var(--paper)]">
                     {data.summary}
-                  </h4>
-                  <div class="mt-1 text-xs text-slate-400">
-                    Autorizado por: <strong class="text-slate-300">{data.authorized_by}</strong>
+                  </h3>
+                  <div class="mt-1 text-xs text-[var(--muted-on-dark)]">
+                    Autorizado por: <strong class="text-[var(--paper)]">{data.authorized_by}</strong>
                   </div>
                 </div>
 
-                <div class="prose prose-invert prose-sm max-w-none text-slate-300 text-sm pt-2 border-t border-slate-800/40">
+                <div class="prose prose-invert prose-sm max-w-none text-[var(--muted-on-dark)] text-sm pt-2 border-t border-white/5 leading-relaxed">
                   <Content />
                 </div>
               </article>
@@ -229,10 +232,10 @@ const typeColors: Record<string, string> = {
       </section>
     </main>
 
-    <footer class="mt-20 border-t border-slate-800/80 py-8 text-center text-xs text-slate-500">
+    <footer class="mt-20 border-t border-white/10 py-8 text-center text-xs text-[var(--muted-on-dark)]">
       <div class="max-w-6xl mx-auto px-4 space-y-2">
         <p>
-          <strong class="text-slate-400">Supletivo Brasil</strong> • Oráculo Central de Versionamento (<code class="text-slate-400">version.v7m.live</code>)
+          <strong class="text-[var(--paper)]">Supletivo Brasil</strong> • Oráculo Central de Versionamento (<code class="text-[var(--yellow)]">version.v7m.live</code>)
         </p>
         <p>Versão Única da Plataforma • Cloudflare Edge SSR</p>
       </div>

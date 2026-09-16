@@ -4,11 +4,11 @@ version: "0.0.0-sandbox.2"
 date: "2026-09-16"
 authorized_by: "Víctor"
 commit: "e4f5a6b"
-summary: "Launch of landing page with lead capture form"
+summary: "Lançamento da landing page oficial com captura de leads"
 type: "patch"
 ---
 
-### Technical Changes
-- Scaffolding of public landing page with high Core Web Vitals score.
-- Lead capture form connected to edge dispatch service.
-- Implemented responsive design adhering to Supletivo Brasil visual guidelines.
+### Mudanças Técnicas
+- Estruturação da landing page pública com alto índice de performance (Core Web Vitals).
+- Formulário de captura de leads integrado ao serviço de despacho na borda.
+- Implementação de design responsivo alinhado à autoridade visual do Supletivo Brasil.

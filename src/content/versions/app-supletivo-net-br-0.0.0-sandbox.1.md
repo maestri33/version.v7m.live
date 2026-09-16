@@ -4,11 +4,11 @@ version: "0.0.0-sandbox.1"
 date: "2026-09-16"
 authorized_by: "Víctor"
 commit: "a1b2c3d"
-summary: "Initial setup of student portal and authentication flows"
+summary: "Configuração inicial do portal do aluno e fluxos de autenticação"
 type: "patch"
 ---
 
-### Technical Changes
-- Initial project scaffolding for student and promoter access.
-- Integrated authentication flows with OTP and CPF validation.
-- Configured Cloudflare Pages deployment pipeline.
+### Mudanças Técnicas
+- Estruturação inicial do projeto para acesso unificado de alunos e promotores.
+- Integração de fluxos de autenticação com validação de CPF e envio de OTP.
+- Configuração de pipeline de implantação contínua na Cloudflare.
