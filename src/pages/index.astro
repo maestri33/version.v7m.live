@@ -3,12 +3,9 @@ import '../styles/global.css';
 import { getAllVersionEntries, getPlatformLatestVersion } from '../lib/versions';
 import { render } from 'astro:content';
 
-export const prerender = false;
-
 const platform = await getPlatformLatestVersion();
 const entries = await getAllVersionEntries();
 
-// Pre-render markdown content for each release entry
 const renderedEntries = await Promise.all(
   entries.map(async (entry) => {
     const { Content } = await render(entry);
@@ -40,7 +37,6 @@ const typeColors: Record<string, string> = {
     />
   </head>
   <body class="min-h-screen bg-slate-950 text-slate-100 antialiased selection:bg-cyan-500 selection:text-white">
-    <!-- Top Navigation / Header -->
     <header class="border-b border-slate-800/80 bg-slate-950/90 backdrop-blur-md sticky top-0 z-50">
       <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         <div class="flex items-center gap-3">
@@ -76,7 +72,6 @@ const typeColors: Record<string, string> = {
     </header>
 
     <main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10">
-      <!-- Intro Hero Banner: Single Platform Version -->
       <section class="rounded-2xl bg-gradient-to-b from-slate-900 via-slate-900/90 to-slate-950 border border-slate-800 p-6 sm:p-8 relative overflow-hidden shadow-2xl">
         <div class="absolute -top-24 -right-24 w-80 h-80 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
         <div class="relative z-10 max-w-3xl">
@@ -123,7 +118,6 @@ const typeColors: Record<string, string> = {
         </div>
       </section>
 
-      <!-- Modules in Platform -->
       <section class="space-y-4">
         <div class="flex items-center justify-between">
           <h3 class="text-lg font-semibold tracking-tight text-white flex items-center gap-2">
@@ -177,7 +171,6 @@ const typeColors: Record<string, string> = {
         </div>
       </section>
 
-      <!-- Chronological Platform Release Train -->
       <section class="space-y-6">
         <div>
           <h3 class="text-lg font-semibold tracking-tight text-white">
@@ -226,7 +219,6 @@ const typeColors: Record<string, string> = {
                   </div>
                 </div>
 
-                <!-- Markdown Content rendered -->
                 <div class="prose prose-invert prose-sm max-w-none text-slate-300 text-sm pt-2 border-t border-slate-800/40">
                   <Content />
                 </div>
@@ -237,7 +229,6 @@ const typeColors: Record<string, string> = {
       </section>
     </main>
 
-    <!-- Footer -->
     <footer class="mt-20 border-t border-slate-800/80 py-8 text-center text-xs text-slate-500">
       <div class="max-w-6xl mx-auto px-4 space-y-2">
         <p>

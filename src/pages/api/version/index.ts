@@ -1,8 +1,6 @@
 import type { APIRoute } from 'astro';
 import { getPlatformLatestVersion } from '../../../lib/versions';
 
-export const prerender = false;
-
 export const GET: APIRoute = async () => {
   try {
     const data = await getPlatformLatestVersion();

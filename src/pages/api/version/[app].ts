@@ -1,7 +1,5 @@
 import type { APIRoute } from 'astro';
-import { getAllVersionEntries, getModuleHistory } from '../../../lib/versions';
-
-export const prerender = false;
+import { getPlatformHistory, getModuleHistory } from '../../../lib/versions';
 
 export const GET: APIRoute = async ({ params }) => {
   const { app } = params;
@@ -17,19 +15,8 @@ export const GET: APIRoute = async ({ params }) => {
   }
 
   try {
-    // If the caller asks for "history", return all platform releases
     if (app.toLowerCase() === 'history') {
-      const allEntries = await getAllVersionEntries();
-      const history = allEntries.map((e) => ({
-        version: e.data.version,
-        date: e.data.date,
-        module: e.data.module,
-        authorized_by: e.data.authorized_by,
-        commit: e.data.commit,
-        summary: e.data.summary,
-        type: e.data.type,
-        id: e.id,
-      }));
+      const history = await getPlatformHistory();
 
       return new Response(
         JSON.stringify(

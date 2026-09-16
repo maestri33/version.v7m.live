@@ -32,6 +32,19 @@ export interface ModuleHistoryResponse {
   history: ModuleVersionSummary[];
 }
 
+function toModuleVersionSummary(entry: VersionEntry): ModuleVersionSummary {
+  return {
+    version: entry.data.version,
+    date: entry.data.date,
+    module: entry.data.module,
+    authorized_by: entry.data.authorized_by,
+    commit: entry.data.commit,
+    summary: entry.data.summary,
+    type: entry.data.type,
+    id: entry.id,
+  };
+}
+
 /**
  * Compare two semver-like version strings (e.g. 0.0.0-sandbox.14 vs 0.0.0-sandbox.5)
  * Returns positive if v1 > v2, negative if v1 < v2, 0 if equal.
@@ -63,7 +76,6 @@ export function compareVersions(v1: string, v2: string): number {
   if (p1.prerelease && !p2.prerelease) return -1;
   if (!p1.prerelease && !p2.prerelease) return 0;
 
-  // Compare prerelease identifiers chunk by chunk
   const parts1 = p1.prerelease.split('.');
   const parts2 = p2.prerelease.split('.');
   const len = Math.max(parts1.length, parts2.length);
@@ -91,13 +103,19 @@ export function compareVersions(v1: string, v2: string): number {
 export async function getAllVersionEntries(): Promise<VersionEntry[]> {
   const entries = await getCollection('versions');
   return entries.sort((a, b) => {
-    // 1. Sort by version descending
     const verCmp = compareVersions(b.data.version, a.data.version);
     if (verCmp !== 0) return verCmp;
 
-    // 2. Sort by date descending
     return b.data.date.localeCompare(a.data.date);
   });
+}
+
+/**
+ * Retrieve the full chronological release history of the platform.
+ */
+export async function getPlatformHistory(): Promise<ModuleVersionSummary[]> {
+  const entries = await getAllVersionEntries();
+  return entries.map(toModuleVersionSummary);
 }
 
 /**
@@ -123,7 +141,6 @@ export async function getPlatformLatestVersion(): Promise<PlatformVersionRespons
 
   const latest = entries[0].data;
 
-  // Track latest platform version for each distinct module
   const apps: Record<string, string> = {};
   for (const entry of entries) {
     const mod = entry.data.module;
@@ -170,21 +187,11 @@ export async function getModuleHistory(targetName: string): Promise<ModuleHistor
   }
 
   const latest = moduleEntries[0].data;
-  const history: ModuleVersionSummary[] = moduleEntries.map((e) => ({
-    version: e.data.version,
-    date: e.data.date,
-    module: e.data.module,
-    authorized_by: e.data.authorized_by,
-    commit: e.data.commit,
-    summary: e.data.summary,
-    type: e.data.type,
-    id: e.id,
-  }));
 
   return {
     module: latest.module,
     platform_version: latest.version,
     last_updated_at: latest.date,
-    history,
+    history: moduleEntries.map(toModuleVersionSummary),
   };
 }
