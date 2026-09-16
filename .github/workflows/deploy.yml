@@ -12,6 +12,8 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     name: Build and Deploy to Cloudflare Workers
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -34,14 +36,15 @@ jobs:
         run: pnpm build
 
       - name: Deploy to Cloudflare
-        if: ${{ secrets.CLOUDFLARE_API_TOKEN != '' }}
+        if: ${{ env.CLOUDFLARE_API_TOKEN != '' }}
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
 
       - name: Aviso de Token Ausente
-        if: ${{ secrets.CLOUDFLARE_API_TOKEN == '' }}
+        if: ${{ env.CLOUDFLARE_API_TOKEN == '' }}
         run: |
           echo "::warning title=Secret Pendente::CLOUDFLARE_API_TOKEN não está definida em Settings > Secrets. Build e verificação de tipos concluídos com sucesso; deploy automático aguardando token."
+
 
