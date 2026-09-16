@@ -2,15 +2,25 @@ import { defineCollection } from 'astro:content';
 import { glob } from 'astro/loaders';
 import { z } from 'astro/zod';
 
-export const versionSchema = z.object({
-  app: z.string(),
-  version: z.string(),
-  date: z.string(),
-  authorized_by: z.string(),
-  commit: z.string(),
-  summary: z.string(),
-  type: z.enum(['patch', 'minor', 'major']),
-});
+export const versionSchema = z
+  .object({
+    app: z.string().optional(),
+    module: z.string().optional(),
+    version: z.string(),
+    date: z.string(),
+    authorized_by: z.string(),
+    commit: z.string(),
+    summary: z.string(),
+    type: z.enum(['patch', 'minor', 'major']),
+  })
+  .transform((data) => {
+    const targetModule = data.module ?? data.app ?? 'platform';
+    return {
+      ...data,
+      app: targetModule,
+      module: targetModule,
+    };
+  });
 
 export type VersionEntryData = z.infer<typeof versionSchema>;
 

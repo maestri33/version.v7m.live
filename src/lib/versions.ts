@@ -2,9 +2,10 @@ import { getCollection, type CollectionEntry } from 'astro:content';
 
 export type VersionEntry = CollectionEntry<'versions'>;
 
-export interface AppVersionSummary {
+export interface ModuleVersionSummary {
   version: string;
   date: string;
+  module: string;
   authorized_by: string;
   commit: string;
   summary: string;
@@ -12,16 +13,23 @@ export interface AppVersionSummary {
   id: string;
 }
 
-export interface AppHistoryResponse {
-  app: string;
-  current_version: string;
+export interface PlatformVersionResponse {
+  platform: string;
+  version: string;
   updated_at: string;
-  history: AppVersionSummary[];
+  last_module_updated: string;
+  summary: string;
+  commit: string;
+  authorized_by: string;
+  type: 'patch' | 'minor' | 'major';
+  apps: Record<string, string>;
 }
 
-export interface LatestVersionsResponse {
-  apps: Record<string, string>;
-  updated_at: string;
+export interface ModuleHistoryResponse {
+  module: string;
+  platform_version: string;
+  last_updated_at: string;
+  history: ModuleVersionSummary[];
 }
 
 /**
@@ -78,66 +86,94 @@ export function compareVersions(v1: string, v2: string): number {
 }
 
 /**
- * Fetch and sort all version entries in descending chronological / semver order.
+ * Fetch and sort all version entries in descending version / chronological order.
  */
 export async function getAllVersionEntries(): Promise<VersionEntry[]> {
   const entries = await getCollection('versions');
   return entries.sort((a, b) => {
-    // 1. Sort by date descending
-    const dateCmp = b.data.date.localeCompare(a.data.date);
-    if (dateCmp !== 0) return dateCmp;
+    // 1. Sort by version descending
+    const verCmp = compareVersions(b.data.version, a.data.version);
+    if (verCmp !== 0) return verCmp;
 
-    // 2. Sort by version descending if date is identical
-    return compareVersions(b.data.version, a.data.version);
+    // 2. Sort by date descending
+    return b.data.date.localeCompare(a.data.date);
   });
 }
 
 /**
- * Retrieve the latest version for each registered application.
+ * Retrieve the current active single platform version.
  */
-export async function getLatestVersions(): Promise<LatestVersionsResponse> {
+export async function getPlatformLatestVersion(): Promise<PlatformVersionResponse> {
   const entries = await getAllVersionEntries();
-  const apps: Record<string, string> = {};
-  let latestDate = '';
 
+  if (entries.length === 0) {
+    const now = new Date().toISOString();
+    return {
+      platform: 'Supletivo Brasil',
+      version: '0.0.0-sandbox.0',
+      updated_at: now,
+      last_module_updated: 'none',
+      summary: 'No releases yet',
+      commit: 'none',
+      authorized_by: 'system',
+      type: 'patch',
+      apps: {},
+    };
+  }
+
+  const latest = entries[0].data;
+
+  // Track latest platform version for each distinct module
+  const apps: Record<string, string> = {};
   for (const entry of entries) {
-    const { app, version, date } = entry.data;
-    if (!apps[app]) {
-      apps[app] = version;
-    }
-    if (!latestDate || date.localeCompare(latestDate) > 0) {
-      latestDate = date;
+    const mod = entry.data.module;
+    if (!apps[mod]) {
+      apps[mod] = entry.data.version;
     }
   }
 
-  // Format updated_at as ISO string (e.g. 2026-09-16T00:00:00Z)
-  const updatedAtIso = latestDate
-    ? new Date(`${latestDate}T00:00:00Z`).toISOString()
+  const updatedAtIso = latest.date
+    ? new Date(`${latest.date}T00:00:00Z`).toISOString()
     : new Date().toISOString();
 
   return {
-    apps,
+    platform: 'Supletivo Brasil',
+    version: latest.version,
     updated_at: updatedAtIso,
+    last_module_updated: latest.module,
+    summary: latest.summary,
+    commit: latest.commit,
+    authorized_by: latest.authorized_by,
+    type: latest.type,
+    apps,
   };
 }
 
 /**
- * Retrieve current version and change history for a specific application.
+ * Retrieve release history for a specific module or application.
  */
-export async function getAppHistory(appName: string): Promise<AppHistoryResponse | null> {
+export async function getModuleHistory(targetName: string): Promise<ModuleHistoryResponse | null> {
   const entries = await getAllVersionEntries();
-  const appEntries = entries.filter(
-    (e) => e.data.app.toLowerCase() === appName.toLowerCase()
-  );
+  const normalized = targetName.toLowerCase();
 
-  if (appEntries.length === 0) {
+  const moduleEntries = entries.filter((e) => {
+    const m = e.data.module.toLowerCase();
+    return (
+      m === normalized ||
+      m.replace(/\.supletivo\.net\.br$/, '') === normalized ||
+      m.replace(/\.v7m\.live$/, '') === normalized
+    );
+  });
+
+  if (moduleEntries.length === 0) {
     return null;
   }
 
-  const latest = appEntries[0];
-  const history: AppVersionSummary[] = appEntries.map((e) => ({
+  const latest = moduleEntries[0].data;
+  const history: ModuleVersionSummary[] = moduleEntries.map((e) => ({
     version: e.data.version,
     date: e.data.date,
+    module: e.data.module,
     authorized_by: e.data.authorized_by,
     commit: e.data.commit,
     summary: e.data.summary,
@@ -146,9 +182,9 @@ export async function getAppHistory(appName: string): Promise<AppHistoryResponse
   }));
 
   return {
-    app: latest.data.app,
-    current_version: latest.data.version,
-    updated_at: latest.data.date,
+    module: latest.module,
+    platform_version: latest.version,
+    last_updated_at: latest.date,
     history,
   };
 }

@@ -1,5 +1,5 @@
 ---
-app: "app.supletivo.net.br"
+module: "app.supletivo.net.br"
 version: "0.0.0-sandbox.1"
 date: "2026-09-16"
 authorized_by: "Víctor"
