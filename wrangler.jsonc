@@ -9,5 +9,11 @@
       "pattern": "version.v7m.live",
       "custom_domain": true
     }
+  ],
+  "kv_namespaces": [
+    {
+      "binding": "PLATFORM_VERSION_KV",
+      "id": "8c88aa37a99744f5b74f01bbd82117b2"
+    }
   ]
 }

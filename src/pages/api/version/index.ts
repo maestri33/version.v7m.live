@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro';
-import { getPlatformLatestVersion } from '../../../lib/versions';
+import { getPlatformLatestVersion, savePlatformVersion } from '../../../lib/versions';
 
 export const GET: APIRoute = async () => {
   try {
@@ -54,7 +54,14 @@ export const POST: APIRoute = async ({ request }) => {
       );
     }
 
-    const latest = await getPlatformLatestVersion();
+    const newPlatform = await savePlatformVersion({
+      module: mod,
+      version: ver,
+      summary,
+      commit,
+      authorized_by,
+      type: (type as 'patch' | 'minor' | 'major') || 'patch',
+    });
 
     return new Response(
       JSON.stringify(
@@ -68,11 +75,11 @@ export const POST: APIRoute = async ({ request }) => {
             commit,
             authorized_by,
             type,
-            recorded_at: new Date().toISOString(),
+            recorded_at: newPlatform.updated_at,
           },
           platform: {
-            current_version: latest.version,
-            last_updated: latest.updated_at,
+            current_version: newPlatform.version,
+            last_updated: newPlatform.updated_at,
           },
         },
         null,

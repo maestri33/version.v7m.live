@@ -97,6 +97,26 @@ export function compareVersions(v1: string, v2: string): number {
   return 0;
 }
 
+export interface VersionKV {
+  get(key: string, type: 'json'): Promise<any>;
+  get(key: string, type?: 'text'): Promise<string | null>;
+  put(key: string, value: string): Promise<void>;
+  delete(key: string): Promise<void>;
+}
+
+export async function getKV(): Promise<VersionKV | null> {
+  try {
+    const cf = await import('cloudflare:workers');
+    const binding = (cf.env as any)?.PLATFORM_VERSION_KV;
+    if (binding && typeof binding.get === 'function') {
+      return binding as VersionKV;
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
 /**
  * Fetch and sort all version entries in descending version / chronological order.
  */
@@ -115,7 +135,43 @@ export async function getAllVersionEntries(): Promise<VersionEntry[]> {
  */
 export async function getPlatformHistory(): Promise<ModuleVersionSummary[]> {
   const entries = await getAllVersionEntries();
-  return entries.map(toModuleVersionSummary);
+  const staticSummaries = entries.map(toModuleVersionSummary);
+
+  const kv = await getKV();
+  if (!kv) {
+    return staticSummaries;
+  }
+
+  try {
+    const historyRaw = await kv.get('release_history', 'json');
+    if (Array.isArray(historyRaw) && historyRaw.length > 0) {
+      const kvSummaries = historyRaw as ModuleVersionSummary[];
+      const seen = new Set<string>();
+      const combined: ModuleVersionSummary[] = [];
+
+      for (const item of kvSummaries) {
+        const key = `${item.module}:${item.version}`;
+        if (!seen.has(key)) {
+          seen.add(key);
+          combined.push(item);
+        }
+      }
+
+      for (const item of staticSummaries) {
+        const key = `${item.module}:${item.version}`;
+        if (!seen.has(key)) {
+          seen.add(key);
+          combined.push(item);
+        }
+      }
+
+      return combined.sort((a, b) => compareVersions(b.version, a.version));
+    }
+  } catch (err) {
+    console.error('Failed to read release history from KV:', err);
+  }
+
+  return staticSummaries;
 }
 
 /**
@@ -124,9 +180,10 @@ export async function getPlatformHistory(): Promise<ModuleVersionSummary[]> {
 export async function getPlatformLatestVersion(): Promise<PlatformVersionResponse> {
   const entries = await getAllVersionEntries();
 
+  let staticLatest: PlatformVersionResponse;
   if (entries.length === 0) {
     const now = new Date().toISOString();
-    return {
+    staticLatest = {
       platform: 'Supletivo Brasil',
       version: '0.0.0-sandbox.0',
       updated_at: now,
@@ -137,44 +194,121 @@ export async function getPlatformLatestVersion(): Promise<PlatformVersionRespons
       type: 'patch',
       apps: {},
     };
+  } else {
+    const latest = entries[0].data;
+    const apps: Record<string, string> = {};
+    for (const entry of entries) {
+      const mod = entry.data.module;
+      if (!apps[mod]) {
+        apps[mod] = entry.data.version;
+      }
+    }
+
+    const updatedAtIso = latest.date
+      ? new Date(`${latest.date}T00:00:00Z`).toISOString()
+      : new Date().toISOString();
+
+    staticLatest = {
+      platform: 'Supletivo Brasil',
+      version: latest.version,
+      updated_at: updatedAtIso,
+      last_module_updated: latest.module,
+      summary: latest.summary,
+      commit: latest.commit,
+      authorized_by: latest.authorized_by,
+      type: latest.type,
+      apps,
+    };
   }
 
-  const latest = entries[0].data;
+  const kv = await getKV();
+  if (!kv) {
+    return staticLatest;
+  }
 
-  const apps: Record<string, string> = {};
-  for (const entry of entries) {
-    const mod = entry.data.module;
-    if (!apps[mod]) {
-      apps[mod] = entry.data.version;
+  try {
+    const dynamicLatest = (await kv.get('latest_version', 'json')) as PlatformVersionResponse | null;
+    if (dynamicLatest && dynamicLatest.version) {
+      if (compareVersions(dynamicLatest.version, staticLatest.version) >= 0) {
+        return {
+          ...dynamicLatest,
+          apps: {
+            ...staticLatest.apps,
+            ...dynamicLatest.apps,
+          },
+        };
+      }
+    }
+  } catch (err) {
+    console.error('Failed to read version from KV:', err);
+  }
+
+  return staticLatest;
+}
+
+/**
+ * Save and dynamically persist a new platform version bump in Cloudflare KV.
+ */
+export async function savePlatformVersion(bumpData: {
+  module: string;
+  version: string;
+  summary: string;
+  commit: string;
+  authorized_by: string;
+  type: 'patch' | 'minor' | 'major';
+}): Promise<PlatformVersionResponse> {
+  const current = await getPlatformLatestVersion();
+  const updatedApps = { ...current.apps, [bumpData.module]: bumpData.version };
+  const newPlatform: PlatformVersionResponse = {
+    platform: 'Supletivo Brasil',
+    version: bumpData.version,
+    updated_at: new Date().toISOString(),
+    last_module_updated: bumpData.module,
+    summary: bumpData.summary,
+    commit: bumpData.commit,
+    authorized_by: bumpData.authorized_by,
+    type: bumpData.type,
+    apps: updatedApps,
+  };
+
+  const kv = await getKV();
+  if (kv) {
+    try {
+      await kv.put('latest_version', JSON.stringify(newPlatform));
+      const historyRaw = await kv.get('release_history', 'json');
+      const historyList: ModuleVersionSummary[] = Array.isArray(historyRaw) ? historyRaw : [];
+      const newHistoryItem: ModuleVersionSummary = {
+        version: bumpData.version,
+        date: newPlatform.updated_at,
+        module: bumpData.module,
+        authorized_by: bumpData.authorized_by,
+        commit: bumpData.commit,
+        summary: bumpData.summary,
+        type: bumpData.type,
+        id: `${bumpData.module}-${bumpData.version}`,
+      };
+      const filtered = historyList.filter(
+        (h) => h.id !== newHistoryItem.id && !(h.module === bumpData.module && h.version === bumpData.version)
+      );
+      filtered.unshift(newHistoryItem);
+      await kv.put('release_history', JSON.stringify(filtered.slice(0, 100)));
+    } catch (err) {
+      console.error('Failed to persist version bump to KV:', err);
     }
   }
 
-  const updatedAtIso = latest.date
-    ? new Date(`${latest.date}T00:00:00Z`).toISOString()
-    : new Date().toISOString();
-
-  return {
-    platform: 'Supletivo Brasil',
-    version: latest.version,
-    updated_at: updatedAtIso,
-    last_module_updated: latest.module,
-    summary: latest.summary,
-    commit: latest.commit,
-    authorized_by: latest.authorized_by,
-    type: latest.type,
-    apps,
-  };
+  return newPlatform;
 }
 
 /**
  * Retrieve release history for a specific module or application.
  */
 export async function getModuleHistory(targetName: string): Promise<ModuleHistoryResponse | null> {
-  const entries = await getAllVersionEntries();
+  const allHistory = await getPlatformHistory();
   const normalized = targetName.toLowerCase();
 
-  const moduleEntries = entries.filter((e) => {
-    const m = e.data.module.toLowerCase();
+  const moduleHistory = allHistory.filter((e) => {
+    const m = e.module.toLowerCase();
     return (
       m === normalized ||
       m.replace(/\.supletivo\.net\.br$/, '') === normalized ||
@@ -182,16 +316,16 @@ export async function getModuleHistory(targetName: string): Promise<ModuleHistor
     );
   });
 
-  if (moduleEntries.length === 0) {
+  if (moduleHistory.length === 0) {
     return null;
   }
 
-  const latest = moduleEntries[0].data;
+  const latest = moduleHistory[0];
 
   return {
     module: latest.module,
     platform_version: latest.version,
     last_updated_at: latest.date,
-    history: moduleEntries.map(toModuleVersionSummary),
+    history: moduleHistory,
   };
 }
