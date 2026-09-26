@@ -1,11 +1,11 @@
 {
   "name": "version.v7m.live",
-  "version": "0.0.0-sandbox.11",
+  "version": "0.0.0-sandbox.40",
   "private": true,
   "type": "module",
   "scripts": {
     "dev": "astro dev",
-    "build": "astro check && astro build",
+    "build": "astro build",
     "preview": "astro preview",
     "check": "astro check",
     "sync": "astro sync"

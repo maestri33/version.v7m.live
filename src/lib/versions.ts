@@ -256,9 +256,22 @@ export async function savePlatformVersion(bumpData: {
   commit: string;
   authorized_by: string;
   type: 'patch' | 'minor' | 'major';
+  sync_all?: boolean;
 }): Promise<PlatformVersionResponse> {
   const current = await getPlatformLatestVersion();
-  const updatedApps = { ...current.apps, [bumpData.module]: bumpData.version };
+
+  // Centralized platform versioning (Release Train):
+  // All core platform apps advance in lockstep to the single central platform version.
+  const updatedApps: Record<string, string> = { ...current.apps };
+  const syncAll = bumpData.sync_all !== false;
+
+  if (syncAll) {
+    for (const appKey of Object.keys(updatedApps)) {
+      updatedApps[appKey] = bumpData.version;
+    }
+  }
+  updatedApps[bumpData.module] = bumpData.version;
+
   const newPlatform: PlatformVersionResponse = {
     platform: 'Supletivo Brasil',
     version: bumpData.version,

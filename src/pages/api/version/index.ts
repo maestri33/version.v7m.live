@@ -61,6 +61,7 @@ export const POST: APIRoute = async ({ request }) => {
       commit,
       authorized_by,
       type: (type as 'patch' | 'minor' | 'major') || 'patch',
+      sync_all: body.sync_all !== false,
     });
 
     return new Response(
