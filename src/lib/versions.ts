@@ -230,12 +230,23 @@ export async function getPlatformLatestVersion(): Promise<PlatformVersionRespons
     const dynamicLatest = (await kv.get('latest_version', 'json')) as PlatformVersionResponse | null;
     if (dynamicLatest && dynamicLatest.version) {
       if (compareVersions(dynamicLatest.version, staticLatest.version) >= 0) {
+        // Centralized platform versioning: All platform apps reflect the single central platform version
+        const unifiedApps: Record<string, string> = {};
+        const allKnownApps = [
+          'backend.supletivo.net.br',
+          'supletivo.net.br',
+          'promotor.supletivo.net.br',
+          'app.supletivo.net.br',
+          'notify.supletivo.net.br',
+          'version.v7m.live',
+        ];
+        for (const app of allKnownApps) {
+          unifiedApps[app] = dynamicLatest.version;
+        }
+
         return {
           ...dynamicLatest,
-          apps: {
-            ...staticLatest.apps,
-            ...dynamicLatest.apps,
-          },
+          apps: unifiedApps,
         };
       }
     }
@@ -258,19 +269,20 @@ export async function savePlatformVersion(bumpData: {
   type: 'patch' | 'minor' | 'major';
   sync_all?: boolean;
 }): Promise<PlatformVersionResponse> {
-  const current = await getPlatformLatestVersion();
-
   // Centralized platform versioning (Release Train):
   // All core platform apps advance in lockstep to the single central platform version.
-  const updatedApps: Record<string, string> = { ...current.apps };
-  const syncAll = bumpData.sync_all !== false;
-
-  if (syncAll) {
-    for (const appKey of Object.keys(updatedApps)) {
-      updatedApps[appKey] = bumpData.version;
-    }
+  const unifiedApps: Record<string, string> = {};
+  const allKnownApps = [
+    'backend.supletivo.net.br',
+    'supletivo.net.br',
+    'promotor.supletivo.net.br',
+    'app.supletivo.net.br',
+    'notify.supletivo.net.br',
+    'version.v7m.live',
+  ];
+  for (const app of allKnownApps) {
+    unifiedApps[app] = bumpData.version;
   }
-  updatedApps[bumpData.module] = bumpData.version;
 
   const newPlatform: PlatformVersionResponse = {
     platform: 'Supletivo Brasil',
@@ -281,7 +293,7 @@ export async function savePlatformVersion(bumpData: {
     commit: bumpData.commit,
     authorized_by: bumpData.authorized_by,
     type: bumpData.type,
-    apps: updatedApps,
+    apps: unifiedApps,
   };
 
   const kv = await getKV();
