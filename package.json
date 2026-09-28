@@ -1,6 +1,6 @@
 {
   "name": "version.v7m.live",
-  "version": "0.0.0-sandbox.40",
+  "version": "0.0.0-sandbox.50",
   "private": true,
   "type": "module",
   "scripts": {
@@ -8,7 +8,8 @@
     "build": "astro build",
     "preview": "astro preview",
     "check": "astro check",
-    "sync": "astro sync"
+    "sync": "astro sync",
+    "test": "node --experimental-strip-types --test test/version.test.mjs"
   },
   "dependencies": {
     "@astrojs/cloudflare": "^14.3.1",
