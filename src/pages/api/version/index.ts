@@ -1,8 +1,9 @@
 import type { APIRoute } from 'astro';
-import { getPlatformLatestVersion, savePlatformVersion, calculateNextVersion } from '../../../lib/versions';
+import { calculateNextVersion } from '../../../lib/semver.ts';
 
 export const GET: APIRoute = async () => {
   try {
+    const { getPlatformLatestVersion } = await import('../../../lib/versions');
     const data = await getPlatformLatestVersion();
 
     return new Response(JSON.stringify(data, null, 2), {
@@ -28,16 +29,16 @@ export const POST: APIRoute = async ({ request }) => {
   try {
     const body = (await request.json().catch(() => ({}))) as Record<string, unknown>;
     const authHeader = request.headers.get('Authorization');
-    const expectedToken = (import.meta.env.VERSION_BUMP_TOKEN as string) || 'supletivo-v7m-release-token';
+    const expectedToken = (import.meta.env?.VERSION_BUMP_TOKEN as string) || 'supletivo-v7m-release-token';
 
-    if (authHeader && authHeader !== `Bearer ${expectedToken}`) {
+    if (!authHeader || authHeader !== `Bearer ${expectedToken}`) {
       return new Response(JSON.stringify({ error: 'Unauthorized' }), {
         status: 401,
         headers: { 'Content-Type': 'application/json; charset=utf-8' },
       });
     }
 
-    // 1. Normalização de módulo: aceita module, service ou repo (compatibilidade com CI/CD)
+    // 1. Module normalization: accepts module, service, or repo (CI/CD compatibility)
     const mod = (body.module || body.service || body.repo) as string | undefined;
     if (!mod) {
       return new Response(
@@ -49,10 +50,11 @@ export const POST: APIRoute = async ({ request }) => {
       );
     }
 
+    const { getPlatformLatestVersion, savePlatformVersion } = await import('../../../lib/versions');
     const type = ((body.type as string) || 'patch') as 'patch' | 'minor' | 'major';
     const currentPlatform = await getPlatformLatestVersion();
 
-    // 2. Auto-incremento se version não for fornecida explicitamente
+    // 2. Auto-increment if version is not explicitly provided
     const ver = (body.version as string) || calculateNextVersion(currentPlatform.version, type);
     const summary = (body.summary as string) || `Release recorded for ${mod}`;
     const commit = (body.commit as string) || 'HEAD';

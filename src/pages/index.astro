@@ -23,6 +23,12 @@ const typeColors: Record<string, { bg: string; text: string; border: string }> =
   minor: { bg: 'bg-[var(--green-deep)]/60', text: 'text-emerald-300', border: 'border-[var(--green)]/50' },
   major: { bg: 'bg-[var(--yellow)]/15', text: 'text-[var(--yellow)]', border: 'border-[var(--yellow)]/40' },
 };
+
+const typeLabels: Record<string, string> = {
+  patch: 'Correção',
+  minor: 'Evolução',
+  major: 'Principal',
+};
 ---
 
 <!doctype html>
@@ -200,14 +206,14 @@ const typeColors: Record<string, { bg: string; text: string; border: string }> =
                       {data.module}
                     </span>
                     <span class={`text-[10px] uppercase tracking-wider font-bold px-2 py-0.5 rounded border ${style.bg} ${style.text} ${style.border}`}>
-                      {data.type}
+                      {typeLabels[data.type] || data.type}
                     </span>
                   </div>
 
                   <div class="flex items-center gap-3 text-xs text-[var(--muted-on-dark)] font-mono">
                     <span>{data.date}</span>
                     <span>•</span>
-                    <span title="Commit Hash" class="bg-[var(--ink-soft)] px-2 py-0.5 rounded text-[var(--paper)] border border-white/10">
+                    <span title="Hash do Commit" class="bg-[var(--ink-soft)] px-2 py-0.5 rounded text-[var(--paper)] border border-white/10">
                       #{data.commit}
                     </span>
                   </div>

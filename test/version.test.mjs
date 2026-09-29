@@ -27,4 +27,17 @@ describe('Version Oracle SemVer Calculations', () => {
     assert.ok(compareVersions('0.0.0-sandbox.40', '0.0.0-sandbox.41') < 0);
     assert.equal(compareVersions('1.0.0', '1.0.0'), 0);
   });
+
+  it('rejects POST /api/version without Authorization header with 401', async () => {
+    const { POST } = await import('../src/pages/api/version/index.ts');
+    const req = new Request('https://version.v7m.live/api/version', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ module: 'version.v7m.live', type: 'patch' }),
+    });
+    const res = await POST({ request: req });
+    assert.equal(res.status, 401);
+    const body = await res.json();
+    assert.equal(body.error, 'Unauthorized');
+  });
 });
